@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Migräne ⚡">
+    <title>Migräne ⚡ Schnelleingabe</title>
+    
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlncsOkbmUg4pqhIFNjaG5lbGxlaW5nYWJlIiwic2hvcnRfbmFtZSI6Ik1pZ3LkbmUg4pqhIiwiZGVzY3JpcHRpb24iOiJTY2huZWxsZSBFaW5nYWJlIGbDvHIgTWlncsOkbmUtQXR0YWNrZW4iLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmNmI2YiIsInRoZW1lX2NvbG9yIjoiI2ZmNmI2YiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURVeE1pQTFNVElpSUdacGJHdzlJaU5tWmpaaVltSWlQanh5WldOMElIZHBaSFJvUFNJMU1USWlJR2hsYVdkb2REMGlOVEV5SWlCeWVEMGlNalVpSUdacGJHdzlJaU5tWmpaaVltSWlMejQ4ZEdWNGRDQjRQU0kxTVRJaUlIazlJalUySWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1hV3hzUFNKM2FHbDBaU0lnWm05dWRDMXphWHBsUFNJMk1DSWdabTl1ZEMxM1pXbG5hSFE5SWpreVpXUmlZV1FpSUdSdmJXbHVZVzUwTFdKaGMyVnNhVzVsUFNKdGFXUmtiR1VpUGpWYk9qVmJQU0JnYkc5blcyMWhjM3JsS0Y5YlhUd3ZkR1Y0ZEQ0OEwzTjJaejQ9Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+            user-select: none;
+            -webkit-user-select: none;
+            color: white;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 40px 30px;
+            color: #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .option-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 18px 12px;
+            border: 3px solid #f0f0f0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            touch-action: manipulation;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            line-height: 1.2;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .option-btn.selected {
+            border-color: #ff6b6b;
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 22px;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 8px 20px rgba(76, 205, 196, 0.4);
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            margin-top: 20px;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(76, 175, 80, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+        }
+
+        .success-content {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .success-content .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .timestamp {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            right: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .button-group {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            
+            .option-btn {
+                width: 100%;
+                min-width: unset;
+                padding: 16px 8px;
+                font-size: 14px;
+                min-height: 85px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .option-btn {
+                padding: 14px 6px;
+                font-size: 13px;
+                min-height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timestamp" id="timestamp"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Schnelleingabe</h1>
+            <p>Sofort dokumentieren</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="quickForm">
+                <div class="form-group">
+                    <label>Art der Beschwerden:</label>
+                    <div class="button-group">
+                        <button type="button" class="option-btn" data-value="kopfschmerz">🤕<br>Kopf-<br>schmerz</button>
+                        <button type="button" class="option-btn" data-value="migraene">⚡<br>Migräne</button>
+                        <button type="button" class="option-btn" data-value="aura">👁️<br>Aura</button>
+                        <button type="button" class="option-btn" data-value="aura-migraene">🌀<br>Aura + Migräne</button>
+                    </div>
+                    <input type="hidden" name="type" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Medikation genommen:</label>
+                    <div class="button-group">
+                        <button type="button" class="option-btn" data-value="keine">❌<br>Keine</button>
+                        <button type="button" class="option-btn" data-value="schmerzmittel">💊<br>Schmerzmittel</button>
+                        <button type="button" class="option-btn" data-value="triptan">💉<br>Triptan</button>
+                    </div>
+                    <input type="hidden" name="medication" required>
+                </div>
+
+                <button type="submit" class="save-btn" disabled>
+                    💾 Jetzt speichern
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <span class="icon">✅</span>
+            Erfolgreich gespeichert!
+            <div style="font-size: 16px; margin-top: 15px; opacity: 0.9;">
+                Wird automatisch geschlossen...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = 
+                new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        }
+        setInterval(updateTimestamp, 1000);
+        updateTimestamp();
+
+        // Haptic feedback
+        function vibrate(pattern = 10) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Form validation and UI updates
+        function updateSaveButton() {
+            const form = document.getElementById('quickForm');
+            const formData = new FormData(form);
+            const saveBtn = form.querySelector('.save-btn');
+            
+            const isValid = formData.get('type') && formData.get('medication');
+            saveBtn.disabled = !isValid;
+            
+            if (isValid) {
+                saveBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+                saveBtn.textContent = '💾 Jetzt speichern';
+            } else {
+                saveBtn.style.background = '#ccc';
+                saveBtn.textContent = '⚠️ Bitte alles auswählen';
+            }
+        }
+
+        // Option button handling
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('option-btn')) {
+                vibrate();
+                const group = e.target.parentNode;
+                const hiddenInput = group.nextElementSibling;
+                
+                // Check if this button is already selected
+                if (e.target.classList.contains('selected')) {
+                    // Deselect it
+                    e.target.classList.remove('selected');
+                    hiddenInput.value = '';
+                } else {
+                    // Remove selected class from siblings
+                    group.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                    
+                    // Add selected class to clicked button
+                    e.target.classList.add('selected');
+                    
+                    // Set hidden input value
+                    hiddenInput.value = e.target.dataset.value;
+                }
+                
+                updateSaveButton();
+            }
+        });
+
+        // Form submission
+        document.getElementById('quickForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            vibrate([20, 50, 20]);
+            
+            const formData = new FormData(e.target);
+            const entry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                type: formData.get('type'),
+                medication: formData.get('medication')
+            };
+
+            // Save to localStorage (same key as main app)
+            let entries = [];
+            try {
+                const stored = localStorage.getItem('migraineEntries');
+                if (stored) entries = JSON.parse(stored);
+            } catch (e) {}
+            
+            entries.push(entry);
+            
+            try {
+                localStorage.setItem('migraineEntries', JSON.stringify(entries));
+            } catch (e) {
+                alert('Speichern fehlgeschlagen. Versuche es erneut.');
+                return;
+            }
+            
+            // Show success overlay
+            document.getElementById('successOverlay').style.display = 'flex';
+            
+            // Auto close and reset
+            setTimeout(() => {
+                document.getElementById('successOverlay').style.display = 'none';
+                
+                // Reset form
+                e.target.reset();
+                document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                updateSaveButton();
+            }, 2000);
+        });
+
+        // Initialize
+        window.addEventListener('load', function() {
+            updateSaveButton();
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
