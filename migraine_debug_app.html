@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Migräne Debug">
+    <title>Migräne Debug ⚡</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+            user-select: none;
+            color: white;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .debug-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .debug-panel h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .debug-line {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .debug-success { color: #4CAF50; }
+        .debug-error { color: #F44336; }
+        .debug-info { color: #2196F3; }
+
+        .form-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 30px;
+            color: #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 16px 12px;
+            border: 3px solid #f0f0f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            touch-action: manipulation;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .option-btn.selected {
+            border-color: #ff6b6b;
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 8px 20px rgba(76, 205, 196, 0.4);
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            margin-top: 20px;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #ccc;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(76, 175, 80, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+        }
+
+        .entries-display {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .entry-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .test-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Debug Version</h1>
+            <p>Lass uns das Speicher-Problem finden!</p>
+        </div>
+        
+        <div class="debug-panel" id="debugPanel">
+            <h3>📊 Status-Monitor</h3>
+            <div id="debugContent">
+                <div class="debug-line debug-info">🔄 App wird geladen...</div>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <form id="quickForm">
+                <div class="form-group">
+                    <label>Art der Beschwerden:</label>
+                    <div class="button-group">
+                        <button type="button" class="option-btn" data-value="kopfschmerz">🤕<br>Kopf-<br>schmerz</button>
+                        <button type="button" class="option-btn" data-value="migraene">⚡<br>Migräne</button>
+                        <button type="button" class="option-btn" data-value="aura">👁️<br>Aura</button>
+                        <button type="button" class="option-btn" data-value="aura-migraene">🌀<br>Aura+<br>Migräne</button>
+                    </div>
+                    <input type="hidden" name="type" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Medikation genommen:</label>
+                    <div class="button-group">
+                        <button type="button" class="option-btn" data-value="keine">❌<br>Keine</button>
+                        <button type="button" class="option-btn" data-value="schmerzmittel">💊<br>Schmerz-<br>mittel</button>
+                        <button type="button" class="option-btn" data-value="triptan">💉<br>Triptan</button>
+                    </div>
+                    <input type="hidden" name="medication" required>
+                </div>
+
+                <button type="submit" class="save-btn" disabled id="saveBtn">
+                    ⚠️ Bitte alles auswählen
+                </button>
+            </form>
+
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testLocalStorage()">🧪 localStorage Test</button>
+                <button class="test-btn" onclick="showEntries()">📋 Einträge anzeigen</button>
+                <button class="test-btn" onclick="clearData()">🗑️ Daten löschen</button>
+            </div>
+        </div>
+
+        <div class="entries-display" id="entriesDisplay" style="display: none;">
+            <h3>📋 Gespeicherte Einträge:</h3>
+            <div id="entriesList"></div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div>
+            <div style="font-size: 80px;">✅</div>
+            <div style="font-size: 24px; margin-top: 20px;">Erfolgreich gespeichert!</div>
+            <div style="font-size: 16px; margin-top: 10px;" id="savedData"></div>
+        </div>
+    </div>
+
+    <script>
+        let debugLog = [];
+        let entries = [];
+
+        function addDebugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.push({timestamp, message, type});
+            
+            const debugContent = document.getElementById('debugContent');
+            const className = `debug-${type}`;
+            debugContent.innerHTML += `<div class="debug-line ${className}">[${timestamp}] ${message}</div>`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+        }
+
+        function testLocalStorage() {
+            try {
+                // Test basic localStorage
+                localStorage.setItem('test', 'hello');
+                const result = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                if (result === 'hello') {
+                    addDebugLog('✅ localStorage funktioniert grundsätzlich', 'success');
+                } else {
+                    addDebugLog('❌ localStorage Test fehlgeschlagen', 'error');
+                }
+
+                // Test migraineEntries
+                const stored = localStorage.getItem('migraineEntries');
+                if (stored) {
+                    addDebugLog(`📁 Gefunden: ${stored.length} Zeichen in migraineEntries`, 'info');
+                    try {
+                        const parsed = JSON.parse(stored);
+                        addDebugLog(`📊 ${parsed.length} Einträge gefunden`, 'success');
+                    } catch (e) {
+                        addDebugLog('❌ JSON Parse-Fehler in gespeicherten Daten', 'error');
+                    }
+                } else {
+                    addDebugLog('📁 Keine migraineEntries gefunden (null/undefined)', 'info');
+                }
+
+            } catch (error) {
+                addDebugLog(`❌ localStorage Fehler: ${error.message}`, 'error');
+            }
+        }
+
+        function loadEntries() {
+            try {
+                addDebugLog('🔄 Lade Einträge aus localStorage...', 'info');
+                const stored = localStorage.getItem('migraineEntries');
+                if (stored) {
+                    entries = JSON.parse(stored);
+                    addDebugLog(`✅ ${entries.length} Einträge geladen`, 'success');
+                } else {
+                    entries = [];
+                    addDebugLog('📝 Keine Einträge vorhanden, leeres Array erstellt', 'info');
+                }
+            } catch (error) {
+                addDebugLog(`❌ Fehler beim Laden: ${error.message}`, 'error');
+                entries = [];
+            }
+        }
+
+        function saveEntries() {
+            try {
+                addDebugLog('💾 Versuche Einträge zu speichern...', 'info');
+                const dataStr = JSON.stringify(entries);
+                addDebugLog(`📦 JSON Daten: ${dataStr.length} Zeichen`, 'info');
+                
+                localStorage.setItem('migraineEntries', dataStr);
+                addDebugLog('✅ Erfolgreich gespeichert!', 'success');
+                
+                // Verify
+                const verify = localStorage.getItem('migraineEntries');
+                if (verify === dataStr) {
+                    addDebugLog('✅ Speicherung verifiziert', 'success');
+                } else {
+                    addDebugLog('⚠️ Verifikation fehlgeschlagen', 'error');
+                }
+                
+                return true;
+            } catch (error) {
+                addDebugLog(`❌ Speichern fehlgeschlagen: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        function showEntries() {
+            const display = document.getElementById('entriesDisplay');
+            const list = document.getElementById('entriesList');
+            
+            if (entries.length === 0) {
+                list.innerHTML = '<div class="entry-item">Keine Einträge vorhanden</div>';
+            } else {
+                list.innerHTML = entries.map((entry, index) => `
+                    <div class="entry-item">
+                        <strong>#${index + 1}</strong> - ${new Date(entry.timestamp).toLocaleString()}<br>
+                        Art: ${entry.type} | Medikation: ${entry.medication}
+                    </div>
+                `).join('');
+            }
+            
+            display.style.display = display.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function clearData() {
+            if (confirm('Alle Daten löschen?')) {
+                localStorage.removeItem('migraineEntries');
+                entries = [];
+                addDebugLog('🗑️ Alle Daten gelöscht', 'info');
+                document.getElementById('entriesDisplay').style.display = 'none';
+            }
+        }
+
+        function updateSaveButton() {
+            const form = document.getElementById('quickForm');
+            const formData = new FormData(form);
+            const saveBtn = document.getElementById('saveBtn');
+            
+            const type = formData.get('type');
+            const medication = formData.get('medication');
+            const isValid = type && medication;
+            
+            saveBtn.disabled = !isValid;
+            
+            if (isValid) {
+                saveBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+                saveBtn.textContent = '💾 Jetzt speichern';
+                addDebugLog(`✅ Form valid: type=${type}, medication=${medication}`, 'success');
+            } else {
+                saveBtn.style.background = '#ccc';
+                saveBtn.textContent = '⚠️ Bitte alles auswählen';
+            }
+        }
+
+        // Option button handling
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('option-btn')) {
+                const group = e.target.parentNode;
+                const hiddenInput = group.nextElementSibling;
+                
+                // Check if this button is already selected
+                if (e.target.classList.contains('selected')) {
+                    // Deselect it
+                    e.target.classList.remove('selected');
+                    hiddenInput.value = '';
+                    addDebugLog(`🔄 Deselected: ${e.target.dataset.value}`, 'info');
+                } else {
+                    // Remove selected class from siblings
+                    group.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                    
+                    // Add selected class to clicked button
+                    e.target.classList.add('selected');
+                    
+                    // Set hidden input value
+                    hiddenInput.value = e.target.dataset.value;
+                    addDebugLog(`✅ Selected: ${e.target.dataset.value}`, 'success');
+                }
+                
+                updateSaveButton();
+            }
+        });
+
+        // Form submission
+        document.getElementById('quickForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            addDebugLog('🚀 Form submitted', 'info');
+            
+            const formData = new FormData(e.target);
+            const entry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                type: formData.get('type'),
+                medication: formData.get('medication')
+            };
+
+            addDebugLog(`📝 New entry: ${JSON.stringify(entry)}`, 'info');
+
+            entries.push(entry);
+            addDebugLog(`📊 Total entries now: ${entries.length}`, 'info');
+            
+            const success = saveEntries();
+            
+            if (success) {
+                // Show success overlay
+                document.getElementById('savedData').textContent = 
+                    `Art: ${entry.type} | Medikation: ${entry.medication}`;
+                document.getElementById('successOverlay').style.display = 'flex';
+                
+                // Reset form
+                setTimeout(() => {
+                    document.getElementById('successOverlay').style.display = 'none';
+                    e.target.reset();
+                    document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                    updateSaveButton();
+                    addDebugLog('🔄 Form reset', 'info');
+                }, 3000);
+            } else {
+                alert('Speichern fehlgeschlagen! Siehe Debug-Log für Details.');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', function() {
+            addDebugLog('🚀 App gestartet', 'success');
+            loadEntries();
+            updateSaveButton();
+            testLocalStorage();
+        });
+
+        // Error handling
+        window.addEventListener('error', function(e) {
+            addDebugLog(`❌ JavaScript Fehler: ${e.message}`, 'error');
+        });
+    </script>
+</body>
+</html>
