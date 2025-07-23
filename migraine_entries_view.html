@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4ecdc4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Migräne 📊">
+    <title>Migräne 📊 Einträge</title>
+    
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlncsOkbmUg8J+TiiBFaW50csOkZ2UiLCJzaG9ydF9uYW1lIjoiTWlncsOkbmUg8J+TiSIsImRlc2NyaXB0aW9uIjoiw5xiZXJzaWNodCDDvGJlciBNaWdyw6RuZS1FaW50csOkZ2UiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzRlY2RjNCIsInRoZW1lX2NvbG9yIjoiIzRlY2RjNCIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURVeE1pQTFNVElpSUdacGJHdzlJaU0wWldOa1l6UWlQanh5WldOMElIZHBaSFJvUFNJMU1USWlJR2hsYVdkb2REMGlOVEV5SWlCeWVEMGlNalVpSUdacGJHdzlJaU0wWldOa1l6UWlMejQ4ZEdWNGRDQjRQU0kxTVRJaUlIazlJalUySWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1hV3hzUFNKM2FHbDBaU0lnWm05dWRDMXphWHBsUFNJMk1DSWdabTl1ZEMxM1pXbG5hSFE5SWpreVpXUmlZV1FpSUdSdmJXbHVZVzUwTFdKaGMyVnNhVzVsUFNKdGFXUmtiR1VpUGpGYmJseGtiV2xzYVhkcGFXVWdjekY1Ym1sbFIxZGNYVHd2ZEdWNGRENDhMMk4yWno0PSIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+            user-select: none;
+            -webkit-user-select: none;
+            color: white;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - env(safe-area-inset-top, 40px) - env(safe-area-inset-bottom, 40px));
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .stats {
+            font-size: 14px;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .toolbar {
+            padding: 20px 25px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+        }
+
+        .toolbar h2 {
+            color: #333;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #4ecdc4;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .export-btn:active {
+            transform: scale(0.95);
+        }
+
+        .entries-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 25px;
+        }
+
+        .entry {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #4ecdc4;
+            transition: all 0.2s ease;
+        }
+
+        .entry:active {
+            transform: scale(0.98);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .entry-date {
+            font-weight: 700;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .entry-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .entry-actions button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .edit-btn {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .entry-details {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .detail-item {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .entry-relative-time {
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state .icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 0 25px;
+        }
+
+        .filter-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab.active {
+            background: white;
+            color: #4ecdc4;
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .summary-item h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .summary-item p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 480px) {
+            .entry-details {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Meine Einträge</h1>
+            <div class="stats" id="statsDisplay">Lade Daten...</div>
+        </div>
+
+        <div class="summary-card" id="summaryCard" style="display: none;">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <h3 id="totalCount">0</h3>
+                    <p>Gesamt</p>
+                </div>
+                <div class="summary-item">
+                    <h3 id="thisWeekCount">0</h3>
+                    <p>Diese Woche</p>
+                </div>
+                <div class="summary-item">
+                    <h3 id="mostCommonType">-</h3>
+                    <p>Häufigste Art</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="setFilter('all')">Alle</button>
+            <button class="filter-tab" onclick="setFilter('migraene')">Migräne</button>
+            <button class="filter-tab" onclick="setFilter('aura-migraene')">Aura+M</button>
+            <button class="filter-tab" onclick="setFilter('kopfschmerz')">Kopfschmerz</button>
+            <button class="filter-tab" onclick="setFilter('aura')">Aura</button>
+        </div>
+
+        <div class="content">
+            <div class="toolbar">
+                <h2>Verlauf</h2>
+                <button class="export-btn" onclick="exportData()">📤 Export</button>
+            </div>
+            
+            <div class="entries-container" id="entriesContainer">
+                <!-- Entries will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let currentFilter = 'all';
+
+        // Load entries from localStorage
+        function loadEntries() {
+            try {
+                const stored = localStorage.getItem('migraineEntries');
+                if (stored) {
+                    entries = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Could not load entries');
+            }
+        }
+
+        // Save entries to localStorage
+        function saveEntries() {
+            try {
+                localStorage.setItem('migraineEntries', JSON.stringify(entries));
+            } catch (e) {
+                alert('Speichern fehlgeschlagen');
+            }
+        }
+
+        // Haptic feedback
+        function vibrate(pattern = 10) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Format date and time
+        function formatDateTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            const diffMinutes = Math.floor(diffTime / (1000 * 60));
+
+            let dateText, timeText, relativeText;
+
+            if (diffDays === 0) {
+                dateText = 'Heute';
+            } else if (diffDays === 1) {
+                dateText = 'Gestern';
+            } else if (diffDays < 7) {
+                dateText = date.toLocaleDateString('de-DE', { weekday: 'long' });
+            } else {
+                dateText = date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            }
+
+            timeText = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+            if (diffMinutes < 60) {
+                relativeText = `vor ${diffMinutes} Min`;
+            } else if (diffHours < 24) {
+                relativeText = `vor ${diffHours} Std`;
+            } else {
+                relativeText = `vor ${diffDays} Tag${diffDays > 1 ? 'en' : ''}`;
+            }
+
+            return { dateText, timeText, relativeText };
+        }
+
+        // Get type and medication labels
+        function getTypeLabel(type) {
+            const labels = {
+                'kopfschmerz': '🤕 Kopfschmerz',
+                'migraene': '⚡ Migräne',
+                'aura': '👁️ Aura',
+                'aura-migraene': '🌀 Aura + Migräne'
+            };
+            return labels[type] || type;
+        }
+
+        function getMedicationLabel(medication) {
+            const labels = {
+                'keine': '❌ Keine',
+                'schmerzmittel': '💊 Schmerzmittel',
+                'triptan': '💉 Triptan'
+            };
+            return labels[medication] || medication;
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            if (entries.length === 0) return;
+
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            const thisWeekEntries = entries.filter(entry => 
+                new Date(entry.timestamp) >= weekAgo
+            );
+
+            const typeCounts = {};
+            entries.forEach(entry => {
+                typeCounts[entry.type] = (typeCounts[entry.type] || 0) + 1;
+            });
+
+            const mostCommonType = Object.keys(typeCounts).reduce((a, b) => 
+                typeCounts[a] > typeCounts[b] ? a : b
+            );
+
+            document.getElementById('totalCount').textContent = entries.length;
+            document.getElementById('thisWeekCount').textContent = thisWeekEntries.length;
+            document.getElementById('mostCommonType').textContent = getTypeLabel(mostCommonType).split(' ')[0];
+            document.getElementById('statsDisplay').textContent = 
+                `${entries.length} Einträge • ${thisWeekEntries.length} diese Woche`;
+            document.getElementById('summaryCard').style.display = 'block';
+        }
+
+        // Set filter
+        function setFilter(filter) {
+            vibrate();
+            currentFilter = filter;
+            
+            // Update tab styles
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderEntries();
+        }
+
+        // Render entries
+        function renderEntries() {
+            const container = document.getElementById('entriesContainer');
+            
+            let filteredEntries = entries;
+            if (currentFilter !== 'all') {
+                filteredEntries = entries.filter(entry => entry.type === currentFilter);
+            }
+
+            if (filteredEntries.length === 0) {
+                const filterText = currentFilter === 'all' ? '' : ` für "${getTypeLabel(currentFilter)}"`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📝</div>
+                        <h3>Keine Einträge vorhanden${filterText}</h3>
+                        <p>Nutze die Schnelleingabe-App!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sortedEntries = filteredEntries.sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            container.innerHTML = sortedEntries.map(entry => {
+                const { dateText, timeText, relativeText } = formatDateTime(entry.timestamp);
+                
+                return `
+                    <div class="entry">
+                        <div class="entry-header">
+                            <div>
+                                <div class="entry-date">${dateText}</div>
+                                <div class="entry-time">${timeText}</div>
+                            </div>
+                            <div class="entry-actions">
+                                <button class="edit-btn" onclick="editEntry(${entry.id})">✏️</button>
+                                <button class="delete-btn" onclick="deleteEntry(${entry.id})">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="entry-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Art</div>
+                                <div class="detail-value">${getTypeLabel(entry.type)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Medikation</div>
+                                <div class="detail-value">${getMedicationLabel(entry.medication)}</div>
+                            </div>
+                        </div>
+                        <div class="entry-relative-time">${relativeText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete entry
+        function deleteEntry(id) {
+            if (confirm('Eintrag wirklich löschen?')) {
+                vibrate([20, 50, 20]);
+                entries = entries.filter(entry => entry.id !== id);
+                saveEntries();
+                renderEntries();
+                calculateStats();
+            }
+        }
+
+        // Edit entry
+        function editEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            const types = ['kopfschmerz', 'migraene', 'aura', 'aura-migraene'];
+            const medications = ['keine', 'schmerzmittel', 'triptan'];
+
+            const newType = prompt(
+                `Art ändern:\n1 = Kopfschmerz\n2 = Migräne\n3 = Aura\n4 = Aura + Migräne\n\nAktuell: ${getTypeLabel(entry.type)}`,
+                types.indexOf(entry.type) + 1
+            );
+
+            if (newType && newType >= 1 && newType <= 4) {
+                const newMed = prompt(
+                    `Medikation ändern:\n1 = Keine\n2 = Schmerzmittel\n3 = Triptan\n\nAktuell: ${getMedicationLabel(entry.medication)}`,
+                    medications.indexOf(entry.medication) + 1
+                );
+
+                if (newMed && newMed >= 1 && newMed <= 3) {
+                    entry.type = types[newType - 1];
+                    entry.medication = medications[newMed - 1];
+                    saveEntries();
+                    renderEntries();
+                    calculateStats();
+                    vibrate();
+                }
+            }
+        }
+
+        // Export data
+        function exportData() {
+            if (entries.length === 0) {
+                alert('Keine Daten zum Exportieren vorhanden.');
+                return;
+            }
+
+            vibrate();
+
+            const csvContent = 'Datum,Zeit,Art,Medikation\n' + 
+                entries.map(entry => {
+                    const date = new Date(entry.timestamp);
+                    return `${date.toLocaleDateString('de-DE')},${date.toLocaleTimeString('de-DE')},${getTypeLabel(entry.type).replace(/[🤕⚡👁️💊💉❌]/g, '').trim()},${getMedicationLabel(entry.medication).replace(/[🤕⚡👁️💊💉❌]/g, '').trim()}`;
+                }).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `migraene-tagebuch-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Auto-refresh entries every 30 seconds
+        function autoRefresh() {
+            const oldCount = entries.length;
+            loadEntries();
+            if (entries.length !== oldCount) {
+                renderEntries();
+                calculateStats();
+            }
+        }
+
+        // Initialize app
+        window.addEventListener('load', function() {
+            loadEntries();
+            renderEntries();
+            calculateStats();
+            
+            // Set up auto-refresh
+            setInterval(autoRefresh, 30000);
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
