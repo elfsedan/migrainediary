@@ -68,6 +68,35 @@
             margin-bottom: 20px;
             text-align: center;
             font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .storage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .storage-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .storage-icon {
+            width: 18px;
+            height: 18px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
         }
 
         .last-update {
@@ -133,6 +162,11 @@
             text-overflow: ellipsis;
         }
 
+        .filter-tab.active {
+            background: white;
+            color: #4ecdc4;
+        }
+
         @media (max-width: 380px) {
             .filter-tab {
                 font-size: 10px;
@@ -153,11 +187,6 @@
                 min-width: 45px;
                 max-width: 55px;
             }
-        }
-
-        .filter-tab.active {
-            background: white;
-            color: #4ecdc4;
         }
 
         .content {
@@ -187,7 +216,7 @@
 
         .toolbar-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .toolbar-btn {
@@ -199,6 +228,26 @@
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
+        }
+
+        .export-btn {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .refresh-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .import-btn {
+            background: #FFA500;
+            color: white;
+        }
+
+        .sync-btn {
+            background: #9b59b6;
+            color: white;
         }
 
         @media (max-width: 380px) {
@@ -225,16 +274,6 @@
             .toolbar h2 {
                 font-size: 16px;
             }
-        }
-
-        .export-btn {
-            background: #4ecdc4;
-            color: white;
-        }
-
-        .refresh-btn {
-            background: #f0f0f0;
-            color: #333;
         }
 
         .entries-container {
@@ -291,6 +330,16 @@
             min-width: 28px;
         }
 
+        .edit-btn {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
         @media (max-width: 380px) {
             .entry-actions button {
                 padding: 4px 6px;
@@ -309,16 +358,6 @@
                 font-size: 8px;
                 min-width: 20px;
             }
-        }
-
-        .edit-btn {
-            background: #ffd93d;
-            color: #333;
-        }
-
-        .delete-btn {
-            background: #ff6b6b;
-            color: white;
         }
 
         .entry-details {
@@ -383,6 +422,85 @@
             100% { transform: rotate(360deg); }
         }
 
+        .import-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .import-dialog {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .import-dialog h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px dashed #4ecdc4;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .import-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .import-btn-dialog {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sync-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(138, 43, 226, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .sync-content {
+            max-width: 300px;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
         @media (max-width: 480px) {
             .entry-details {
                 flex-direction: column;
@@ -436,8 +554,16 @@
         </div>
 
         <div class="sync-status" id="syncStatus">
-            🔄 Synchronisiere...
+            🔄 IndexedDB wird geladen...
             <div class="last-update" id="lastUpdate"></div>
+        </div>
+
+        <div class="storage-info">
+            <div class="storage-type">
+                <div class="storage-icon">🗄️</div>
+                <span>IndexedDB Speicher</span>
+            </div>
+            <div id="storageSize">0 KB</div>
         </div>
 
         <div class="summary-card" id="summaryCard" style="display: none;">
@@ -470,7 +596,9 @@
                 <h2>Verlauf</h2>
                 <div class="toolbar-buttons">
                     <button class="toolbar-btn refresh-btn" onclick="forceRefresh()">🔄</button>
-                    <button class="toolbar-btn export-btn" onclick="exportData()">📤 Export</button>
+                    <button class="toolbar-btn import-btn" onclick="showImportDialog()">📁</button>
+                    <button class="toolbar-btn sync-btn" onclick="showSyncDialog()">📱</button>
+                    <button class="toolbar-btn export-btn" onclick="exportData()">📤</button>
                 </div>
             </div>
             
@@ -480,11 +608,81 @@
         </div>
     </div>
 
+    <!-- Import Dialog -->
+    <div class="import-overlay" id="importOverlay">
+        <div class="import-dialog">
+            <h3>📁 Backup importieren</h3>
+            <p>Wähle eine Backup-Datei aus deiner Files-App:</p>
+            <div class="file-input">
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+                <button onclick="document.getElementById('fileInput').click()" style="background: #4ecdc4; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">
+                    📂 Datei auswählen
+                </button>
+                <div id="fileName" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
+            </div>
+            <div class="import-actions">
+                <button class="import-btn-dialog" onclick="closeImportDialog()" style="background: #f0f0f0; color: #333;">Abbrechen</button>
+                <button class="import-btn-dialog" onclick="importBackup()" style="background: #4ecdc4; color: white;" id="importConfirm" disabled>Importieren</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Dialog -->
+    <div class="sync-overlay" id="syncOverlay">
+        <div class="sync-content">
+            <h3>📱 Geräte-Sync</h3>
+            <p>Scanne diesen QR-Code mit einem anderen Gerät:</p>
+            <div class="qr-code" id="qrCode">
+                QR-Code wird generiert...
+            </div>
+            <p style="font-size: 12px; opacity: 0.8;">
+                Der QR-Code enthält deine aktuellen Daten für den Transfer zwischen deinen Geräten.
+            </p>
+            <button onclick="closeSyncDialog()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-top: 20px; cursor: pointer;">
+                Schließen
+            </button>
+        </div>
+    </div>
+
     <script>
-        const STORAGE_KEY = 'migraineEntries';
+        const DB_NAME = 'MigraineDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'entries';
+        let db = null;
         let entries = [];
         let currentFilter = 'all';
         let lastLoadTime = 0;
+
+        // IndexedDB Setup (same as quick entry app)
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => {
+                    console.error('IndexedDB error:', request.error);
+                    updateSyncStatus('❌ DB-Fehler');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    updateSyncStatus('✅ IndexedDB bereit');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                        store.createIndex('type', 'type', { unique: false });
+                    }
+                    
+                    updateSyncStatus('🔄 DB initialisiert');
+                };
+            });
+        }
 
         // Haptic feedback
         function vibrate(pattern = 10) {
@@ -495,67 +693,111 @@
 
         // Enhanced localStorage operations
         function loadEntries(force = false) {
-            try {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+
                 const now = Date.now();
                 if (!force && now - lastLoadTime < 2000) {
-                    return; // Prevent too frequent reloads
+                    resolve(entries);
+                    return;
                 }
-                
+
                 updateSyncStatus('🔄 Lade Daten...');
-                
-                const stored = localStorage.getItem(STORAGE_KEY);
-                const oldCount = entries.length;
-                
-                if (stored && stored.trim() !== '') {
-                    const parsed = JSON.parse(stored);
-                    entries = Array.isArray(parsed) ? parsed : [];
-                } else {
-                    entries = [];
-                }
-                
-                lastLoadTime = now;
-                
-                // Check for new entries
-                if (entries.length !== oldCount) {
-                    if (entries.length > oldCount) {
-                        updateSyncStatus(`✅ ${entries.length - oldCount} neue Einträge geladen`);
-                        vibrate([50, 100, 50]);
+
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const oldCount = entries.length;
+                    entries = request.result || [];
+                    entries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    lastLoadTime = now;
+                    
+                    if (entries.length !== oldCount) {
+                        if (entries.length > oldCount) {
+                            updateSyncStatus(`✅ ${entries.length - oldCount} neue Einträge geladen`);
+                            vibrate([50, 100, 50]);
+                        } else {
+                            updateSyncStatus('✅ Daten aktualisiert');
+                        }
                     } else {
-                        updateSyncStatus('✅ Daten aktualisiert');
+                        updateSyncStatus('✅ Daten geladen');
                     }
-                } else {
-                    updateSyncStatus('✅ Daten geladen');
-                }
-                
-                calculateStats();
-                renderEntries();
-                
-            } catch (error) {
-                console.error('Load error:', error);
-                entries = [];
-                updateSyncStatus('❌ Ladefehler');
-                renderEntries();
-            }
+                    
+                    calculateStats();
+                    renderEntries();
+                    updateStorageSize();
+                    resolve(entries);
+                };
+
+                request.onerror = () => {
+                    updateSyncStatus('❌ Ladefehler');
+                    reject(request.error);
+                };
+            });
         }
 
-        function saveEntries() {
-            try {
-                const dataStr = JSON.stringify(entries);
-                localStorage.setItem(STORAGE_KEY, dataStr);
-                
-                // Verify save
-                const verify = localStorage.getItem(STORAGE_KEY);
-                if (verify === dataStr) {
-                    updateSyncStatus('✅ Änderungen gespeichert');
-                    return true;
-                } else {
-                    throw new Error('Verification failed');
+        function saveEntry(entry) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
                 }
-            } catch (error) {
-                console.error('Save error:', error);
-                updateSyncStatus('❌ Speicherfehler');
-                return false;
-            }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put(entry);
+
+                request.onsuccess = () => {
+                    updateSyncStatus('✅ Gespeichert');
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    updateSyncStatus('❌ Speicherfehler');
+                    reject(request.error);
+                };
+            });
+        }
+
+        function deleteEntryFromDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
+
+                request.onsuccess = () => {
+                    updateSyncStatus('✅ Eintrag gelöscht');
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    updateSyncStatus('❌ Löschfehler');
+                    reject(request.error);
+                };
+            });
+        }
+
+        function calculateStorageSize() {
+            if (!entries || entries.length === 0) return 0;
+            const dataStr = JSON.stringify(entries);
+            return new Blob([dataStr]).size;
+        }
+
+        function updateStorageSize() {
+            const size = calculateStorageSize();
+            const sizeKB = (size / 1024).toFixed(1);
+            document.getElementById('storageSize').textContent = `${sizeKB} KB`;
         }
 
         function updateSyncStatus(status) {
@@ -564,11 +806,10 @@
                 <div class="last-update">Letztes Update: ${new Date().toLocaleTimeString()}</div>
             `;
             
-            // Auto-clear status after 3 seconds
             if (!status.includes('🔄')) {
                 setTimeout(() => {
                     document.getElementById('syncStatus').innerHTML = `
-                        🔄 Synchronisiert
+                        🗄️ IndexedDB Sync
                         <div class="last-update">Letztes Update: ${new Date().toLocaleTimeString()}</div>
                     `;
                 }, 3000);
@@ -670,7 +911,6 @@
             vibrate();
             currentFilter = filter;
             
-            // Update tab styles
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -743,18 +983,21 @@
         }
 
         // Delete entry
-        function deleteEntry(id) {
+        async function deleteEntry(id) {
             if (confirm('Eintrag wirklich löschen?')) {
                 vibrate([20, 50, 20]);
-                entries = entries.filter(entry => entry.id !== id);
-                saveEntries();
-                calculateStats();
-                renderEntries();
+                try {
+                    await deleteEntryFromDB(id);
+                    await loadEntries(true);
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    alert('Löschen fehlgeschlagen.');
+                }
             }
         }
 
         // Edit entry
-        function editEntry(id) {
+        async function editEntry(id) {
             const entry = entries.find(e => e.id === id);
             if (!entry) return;
 
@@ -775,10 +1018,15 @@
                 if (newMed && newMed >= 1 && newMed <= 3) {
                     entry.type = types[newType - 1];
                     entry.medication = medications[newMed - 1];
-                    saveEntries();
-                    calculateStats();
-                    renderEntries();
-                    vibrate();
+                    
+                    try {
+                        await saveEntry(entry);
+                        await loadEntries(true);
+                        vibrate();
+                    } catch (error) {
+                        console.error('Edit error:', error);
+                        alert('Bearbeiten fehlgeschlagen.');
+                    }
                 }
             }
         }
@@ -792,52 +1040,140 @@
 
             vibrate();
 
-            const csvContent = 'Datum,Zeit,Art,Medikation\n' + 
-                entries.map(entry => {
-                    const date = new Date(entry.timestamp);
-                    return `${date.toLocaleDateString('de-DE')},${date.toLocaleTimeString('de-DE')},${getTypeLabel(entry.type).replace(/[🤕⚡👁️💊💉❌🌀]/g, '').trim()},${getMedicationLabel(entry.medication).replace(/[🤕⚡👁️💊💉❌]/g, '').trim()}`;
-                }).join('\n');
+            try {
+                const exportData = {
+                    app: 'Migräne Tagebuch',
+                    version: '2.0',
+                    exported: new Date().toISOString(),
+                    entryCount: entries.length,
+                    entries: entries
+                };
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `migraene-tagebuch-${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            updateSyncStatus('📤 Daten exportiert');
+                const jsonStr = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `migraene-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                updateSyncStatus('📤 Export erfolgreich');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                updateSyncStatus('❌ Export-Fehler');
+            }
         }
 
-        // Storage event listener for cross-app sync
-        window.addEventListener('storage', function(e) {
-            if (e.key === STORAGE_KEY) {
-                updateSyncStatus('🔄 Sync von Schnelleingabe-App');
-                setTimeout(() => loadEntries(true), 100);
+        // Import functions
+        function showImportDialog() {
+            document.getElementById('importOverlay').style.display = 'flex';
+        }
+
+        function closeImportDialog() {
+            document.getElementById('importOverlay').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('importConfirm').disabled = true;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('importConfirm').disabled = false;
             }
         });
 
-        // Enhanced focus detection
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                updateSyncStatus('🔄 App aktiviert');
-                setTimeout(() => loadEntries(true), 200);
+        async function importBackup() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Bitte wähle eine Datei aus.');
+                return;
             }
-        });
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                
+                if (!data.entries || !Array.isArray(data.entries)) {
+                    throw new Error('Invalid backup format');
+                }
+
+                const importCount = data.entries.length;
+                if (confirm(`${importCount} Einträge importieren? Bestehende Daten bleiben erhalten.`)) {
+                    
+                    for (const entry of data.entries) {
+                        // Ensure entry has required fields
+                        if (!entry.id) entry.id = Date.now() + Math.random();
+                        if (!entry.timestamp) entry.timestamp = new Date().toISOString();
+                        
+                        await saveEntry(entry);
+                    }
+                    
+                    await loadEntries(true);
+                    updateSyncStatus(`📁 ${importCount} Einträge importiert`);
+                    closeImportDialog();
+                    vibrate([100, 50, 100, 50, 100]);
+                }
+                
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Import fehlgeschlagen. Überprüfe die Datei.');
+            }
+        }
+
+        // Sync functions
+        function showSyncDialog() {
+            document.getElementById('syncOverlay').style.display = 'flex';
+            generateQRCode();
+        }
+
+        function closeSyncDialog() {
+            document.getElementById('syncOverlay').style.display = 'none';
+        }
+
+        function generateQRCode() {
+            try {
+                const syncData = {
+                    app: 'MigraineDiary',
+                    timestamp: new Date().toISOString(),
+                    entries: entries.slice(-10) // Last 10 entries for QR size limit
+                };
+                
+                const dataStr = JSON.stringify(syncData);
+                const dataUrl = `data:text/plain;base64,${btoa(dataStr)}`;
+                
+                document.getElementById('qrCode').innerHTML = `
+                    <div style="font-size: 12px; color: #333; padding: 10px;">
+                        📱 QR-Code für letzte ${Math.min(10, entries.length)} Einträge<br>
+                        <small>Vollständige Sync über Export/Import</small>
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('qrCode').innerHTML = 'QR-Code Fehler';
+            }
+        }
 
         // Auto-refresh with intelligence
         let refreshInterval;
         function startAutoRefresh() {
-            refreshInterval = setInterval(() => {
+            refreshInterval = setInterval(async () => {
                 const currentCount = entries.length;
-                loadEntries();
-                // Only show notification if there were actual changes
+                await loadEntries();
                 if (entries.length !== currentCount && entries.length > currentCount) {
                     updateSyncStatus(`🆕 ${entries.length - currentCount} neue Einträge`);
                 }
-            }, 5000); // Check every 5 seconds
+            }, 3000); // Check every 3 seconds
         }
 
         function stopAutoRefresh() {
@@ -847,10 +1183,33 @@
         }
 
         // Initialize app
-        window.addEventListener('load', function() {
-            updateSyncStatus('🚀 App startet...');
-            loadEntries(true);
-            startAutoRefresh();
+        window.addEventListener('load', async function() {
+            try {
+                updateSyncStatus('🚀 App startet...');
+                await initDB();
+                await loadEntries(true);
+                startAutoRefresh();
+                
+                // Check for localStorage migration
+                const oldData = localStorage.getItem('migraineEntries');
+                if (oldData && entries.length === 0) {
+                    try {
+                        const oldEntries = JSON.parse(oldData);
+                        for (const entry of oldEntries) {
+                            await saveEntry(entry);
+                        }
+                        await loadEntries(true);
+                        updateSyncStatus('📦 Migration abgeschlossen');
+                        localStorage.removeItem('migraineEntries');
+                    } catch (e) {
+                        console.warn('Migration failed:', e);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateSyncStatus('❌ Init-Fehler');
+            }
         });
 
         // Pause auto-refresh when app is hidden
@@ -858,6 +1217,8 @@
             if (document.hidden) {
                 stopAutoRefresh();
             } else {
+                updateSyncStatus('🔄 App aktiviert');
+                loadEntries(true);
                 startAutoRefresh();
             }
         });

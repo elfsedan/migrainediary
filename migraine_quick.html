@@ -9,7 +9,10 @@
     <meta name="apple-mobile-web-app-title" content="Migräne ⚡">
     <title>Migräne ⚡ Schnelleingabe</title>
     
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlncsOkbmUg4pqhIFNjaG5lbGxlaW5nYWJlIiwic2hvcnRfbmFtZSI6Ik1pZ3LkbmUg4pqhIiwiZGVzY3JpcHRpb24iOiJTY2huZWxsZSBFaW5nYWJlIGbDvHIgTWlncsOkbmUtQXR0YWNrZW4iLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmNmI2YiIsInRoZW1lX2NvbG9yIjoiI2ZmNmI2YiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURVeE1pQTFNVElpSUdacGJHdzlJaU5tWmpaaVltSWlQanh5WldOMElIZHBaSFJvUFNJMU1USWlJR2hsYVdkb2REMGlOVEV5SWlCeWVEMGlNalVpSUdacGJHdzlJaU5tWmpaaVltSWlMejQ4ZEdWNGRDQjRQU0kxTVRJaUlIazlJalUySWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1hV3hzUFNKM2FHbDBaU0lnWm05dWRDMXphWHBsUFNJMk1DSWdabTl1ZEMxM1pXbG5hSFE5SWpreVpXUmlZV1FpSUdSdmJXbHVZVzUwTFdKaGMyVnNhVzVsUFNKdGFXUmtiR1VpUGpWYk9qVmJQU0JnYkc5blcyMWhjM3JsS0Y5YlhUd3ZkR1Y0ZEQ0OEwzTjJaejQ9Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="migraine-quick-glow.png">
+    <link rel="icon" href="migraine-quick-glow.png">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlncsOkbmUg4pqhIFNjaG5lbGxlaW5nYWJlIiwic2hvcnRfbmFtZSI6Ik1pZ3LkbmUg4pqhIiwiZGVzY3JpcHRpb24iOiJTY2huZWxsZSBFaW5nYWJlIGbDvHIgTWlncsOkbmUtQXR0YWNrZW4iLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmNmI2YiIsInRoZW1lX2NvbG9yIjoiI2ZmNmI2YiIsImljb25zIjpbeyJzcmMiOiJtaWdyYWluZS1xdWljay1nbG93LnBuZyIsInNpemVzIjoiMTgweDE4MCIsInR5cGUiOiJpbWFnZS9wbmcifV19">
     
     <style>
         * {
@@ -53,6 +56,44 @@
             opacity: 0.9;
         }
 
+        .sync-status {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        .storage-indicator {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .storage-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .storage-icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
         .form-container {
             background: rgba(255,255,255,0.95);
             border-radius: 25px;
@@ -74,32 +115,64 @@
         }
 
         .button-group {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
+        }
+
+        @media (max-width: 450px) {
+            .button-group {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
         }
 
         .option-btn {
-            flex: 1;
-            min-width: 100px;
-            padding: 18px 12px;
+            padding: 16px 8px;
             border: 3px solid #f0f0f0;
             border-radius: 15px;
             background: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             text-align: center;
             touch-action: manipulation;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            line-height: 1.2;
-            min-height: 90px;
+            line-height: 1.1;
+            min-height: 80px;
+            max-height: 90px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            word-break: break-word;
+            hyphens: auto;
+        }
+
+        @media (max-width: 380px) {
+            .option-btn {
+                font-size: 12px;
+                padding: 12px 6px;
+                min-height: 75px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .option-btn {
+                font-size: 11px;
+                padding: 10px 4px;
+                min-height: 70px;
+                line-height: 1.0;
+            }
         }
 
         .option-btn:active {
@@ -137,6 +210,8 @@
         .save-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            background: #ccc;
+            box-shadow: none;
         }
 
         .success-overlay {
@@ -174,38 +249,58 @@
             font-weight: 500;
         }
 
-        @media (max-width: 480px) {
-            .button-group {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-            
-            .option-btn {
-                width: 100%;
-                min-width: unset;
-                padding: 16px 8px;
-                font-size: 14px;
-                min-height: 85px;
-            }
+        .entries-count {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 12px;
         }
 
-        @media (max-width: 360px) {
-            .option-btn {
-                padding: 14px 6px;
-                font-size: 13px;
-                min-height: 80px;
-            }
+        .quick-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
     <div class="timestamp" id="timestamp"></div>
+    <div class="entries-count" id="entriesCount">📊 0 Einträge</div>
     
     <div class="container">
         <div class="header">
             <h1>⚡ Schnelleingabe</h1>
             <p>Sofort dokumentieren</p>
+            <div class="sync-status" id="syncStatus">🔄 IndexedDB wird geladen...</div>
+        </div>
+
+        <div class="storage-indicator">
+            <div class="storage-type">
+                <div class="storage-icon">🗄️</div>
+                <span>IndexedDB Speicher</span>
+            </div>
+            <div id="storageSize">0 KB</div>
         </div>
         
         <div class="form-container">
@@ -216,7 +311,7 @@
                         <button type="button" class="option-btn" data-value="kopfschmerz">🤕<br>Kopf-<br>schmerz</button>
                         <button type="button" class="option-btn" data-value="migraene">⚡<br>Migräne</button>
                         <button type="button" class="option-btn" data-value="aura">👁️<br>Aura</button>
-                        <button type="button" class="option-btn" data-value="aura-migraene">🌀<br>Aura + Migräne</button>
+                        <button type="button" class="option-btn" data-value="aura-migraene">🌀<br>Aura+<br>Migräne</button>
                     </div>
                     <input type="hidden" name="type" required>
                 </div>
@@ -225,16 +320,21 @@
                     <label>Medikation genommen:</label>
                     <div class="button-group">
                         <button type="button" class="option-btn" data-value="keine">❌<br>Keine</button>
-                        <button type="button" class="option-btn" data-value="schmerzmittel">💊<br>Schmerzmittel</button>
+                        <button type="button" class="option-btn" data-value="schmerzmittel">💊<br>Schmerz-<br>mittel</button>
                         <button type="button" class="option-btn" data-value="triptan">💉<br>Triptan</button>
                     </div>
                     <input type="hidden" name="medication" required>
                 </div>
 
-                <button type="submit" class="save-btn" disabled>
-                    💾 Jetzt speichern
+                <button type="submit" class="save-btn" disabled id="saveBtn">
+                    ⚠️ Bitte alles auswählen
                 </button>
             </form>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="autoBackup()">💾 Auto-Backup</button>
+                <button class="quick-btn" onclick="exportToFiles()">📁 Export</button>
+            </div>
         </div>
     </div>
 
@@ -242,13 +342,207 @@
         <div class="success-content">
             <span class="icon">✅</span>
             Erfolgreich gespeichert!
-            <div style="font-size: 16px; margin-top: 15px; opacity: 0.9;">
+            <div style="font-size: 16px; margin-top: 15px; opacity: 0.9;" id="successDetails">
                 Wird automatisch geschlossen...
             </div>
         </div>
     </div>
 
     <script>
+        const DB_NAME = 'MigraineDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'entries';
+        let db = null;
+        let entries = [];
+
+        // IndexedDB Setup
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => {
+                    console.error('IndexedDB error:', request.error);
+                    updateSyncStatus('❌ DB-Fehler');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    updateSyncStatus('✅ IndexedDB bereit');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    
+                    // Create object store if it doesn't exist
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                        store.createIndex('type', 'type', { unique: false });
+                    }
+                    
+                    updateSyncStatus('🔄 DB initialisiert');
+                };
+            });
+        }
+
+        // IndexedDB Operations
+        function saveEntry(entry) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put(entry);
+
+                request.onsuccess = () => {
+                    updateSyncStatus('✅ Gespeichert');
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    updateSyncStatus('❌ Speicherfehler');
+                    reject(request.error);
+                };
+            });
+        }
+
+        function loadEntries() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    entries = request.result || [];
+                    entries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    updateEntriesCount();
+                    updateStorageSize();
+                    updateSyncStatus('✅ Geladen');
+                    resolve(entries);
+                };
+
+                request.onerror = () => {
+                    updateSyncStatus('❌ Ladefehler');
+                    reject(request.error);
+                };
+            });
+        }
+
+        function calculateStorageSize() {
+            if (!entries || entries.length === 0) return 0;
+            const dataStr = JSON.stringify(entries);
+            return new Blob([dataStr]).size;
+        }
+
+        function updateStorageSize() {
+            const size = calculateStorageSize();
+            const sizeKB = (size / 1024).toFixed(1);
+            document.getElementById('storageSize').textContent = `${sizeKB} KB`;
+        }
+
+        function updateEntriesCount() {
+            document.getElementById('entriesCount').textContent = `📊 ${entries.length} Einträge`;
+        }
+
+        function updateSyncStatus(status) {
+            document.getElementById('syncStatus').textContent = status;
+            setTimeout(() => {
+                if (status.includes('✅') || status.includes('❌')) {
+                    document.getElementById('syncStatus').textContent = '🗄️ IndexedDB';
+                }
+            }, 3000);
+        }
+
+        // Export to Files App
+        function exportToFiles() {
+            if (entries.length === 0) {
+                alert('Keine Daten zum Exportieren vorhanden.');
+                return;
+            }
+
+            try {
+                // Create export object with metadata
+                const exportData = {
+                    app: 'Migräne Tagebuch',
+                    version: '2.0',
+                    exported: new Date().toISOString(),
+                    entryCount: entries.length,
+                    entries: entries
+                };
+
+                const jsonStr = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `migraene-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                
+                updateSyncStatus('📁 Export erfolgreich');
+                
+                // Show instructions
+                setTimeout(() => {
+                    alert('📁 Backup-Datei heruntergeladen!\n\n💡 Tipp: Die Datei wird automatisch in deine Files-App gespeichert und kann von dort in iCloud gesichert werden.');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                updateSyncStatus('❌ Export-Fehler');
+            }
+        }
+
+        // Auto-backup functionality
+        function autoBackup() {
+            if (entries.length === 0) {
+                alert('Keine Daten für Auto-Backup vorhanden.');
+                return;
+            }
+
+            // Create compressed backup
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                count: entries.length,
+                data: entries.map(entry => ({
+                    id: entry.id,
+                    t: entry.timestamp,
+                    type: entry.type.charAt(0), // Compress type to first letter
+                    med: entry.medication.charAt(0) // Compress medication to first letter
+                }))
+            };
+
+            const compressed = JSON.stringify(backupData);
+            
+            // Store in localStorage as fallback
+            try {
+                localStorage.setItem('migraineBackup', compressed);
+                updateSyncStatus('💾 Auto-Backup OK');
+                
+                // Also trigger file export
+                exportToFiles();
+                
+            } catch (error) {
+                console.error('Auto-backup error:', error);
+                updateSyncStatus('❌ Backup-Fehler');
+            }
+        }
+
         // Update timestamp
         function updateTimestamp() {
             document.getElementById('timestamp').textContent = 
@@ -268,21 +562,23 @@
         function updateSaveButton() {
             const form = document.getElementById('quickForm');
             const formData = new FormData(form);
-            const saveBtn = form.querySelector('.save-btn');
+            const saveBtn = document.getElementById('saveBtn');
             
             const isValid = formData.get('type') && formData.get('medication');
             saveBtn.disabled = !isValid;
             
             if (isValid) {
                 saveBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+                saveBtn.style.boxShadow = '0 8px 20px rgba(76, 205, 196, 0.4)';
                 saveBtn.textContent = '💾 Jetzt speichern';
             } else {
                 saveBtn.style.background = '#ccc';
+                saveBtn.style.boxShadow = 'none';
                 saveBtn.textContent = '⚠️ Bitte alles auswählen';
             }
         }
 
-        // Option button handling
+        // Option button handling with deselect
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('option-btn')) {
                 vibrate();
@@ -309,8 +605,8 @@
             }
         });
 
-        // Form submission
-        document.getElementById('quickForm').addEventListener('submit', function(e) {
+        // Enhanced form submission
+        document.getElementById('quickForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             vibrate([20, 50, 20]);
             
@@ -319,43 +615,105 @@
                 id: Date.now(),
                 timestamp: new Date().toISOString(),
                 type: formData.get('type'),
-                medication: formData.get('medication')
+                medication: formData.get('medication'),
+                source: 'quickEntry',
+                version: 2
             };
 
-            // Save to localStorage (same key as main app)
-            let entries = [];
             try {
-                const stored = localStorage.getItem('migraineEntries');
-                if (stored) entries = JSON.parse(stored);
-            } catch (e) {}
-            
-            entries.push(entry);
-            
-            try {
-                localStorage.setItem('migraineEntries', JSON.stringify(entries));
-            } catch (e) {
-                alert('Speichern fehlgeschlagen. Versuche es erneut.');
-                return;
-            }
-            
-            // Show success overlay
-            document.getElementById('successOverlay').style.display = 'flex';
-            
-            // Auto close and reset
-            setTimeout(() => {
-                document.getElementById('successOverlay').style.display = 'none';
+                // Save to IndexedDB
+                await saveEntry(entry);
+                
+                // Update local array
+                entries.unshift(entry); // Add to beginning
+                updateEntriesCount();
+                updateStorageSize();
+                
+                // Show success overlay with details
+                document.getElementById('successDetails').innerHTML = `
+                    <strong>${getTypeLabel(entry.type)}</strong><br>
+                    ${getMedicationLabel(entry.medication)}<br>
+                    <small>${new Date().toLocaleString('de-DE')}</small>
+                `;
+                document.getElementById('successOverlay').style.display = 'flex';
                 
                 // Reset form
-                e.target.reset();
-                document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-                updateSaveButton();
-            }, 2000);
+                setTimeout(() => {
+                    document.getElementById('successOverlay').style.display = 'none';
+                    e.target.reset();
+                    document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+                    updateSaveButton();
+                }, 3000);
+                
+                // Trigger haptic success pattern
+                vibrate([100, 50, 100]);
+                
+                // Auto-backup every 5 entries
+                if (entries.length % 5 === 0) {
+                    setTimeout(autoBackup, 1000);
+                }
+                
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Speichern fehlgeschlagen. Bitte versuche es erneut.');
+                vibrate([200, 100, 200, 100, 200]);
+            }
         });
 
-        // Initialize
-        window.addEventListener('load', function() {
-            updateSaveButton();
+        // Helper functions
+        function getTypeLabel(type) {
+            const labels = {
+                'kopfschmerz': '🤕 Kopfschmerz',
+                'migraene': '⚡ Migräne',
+                'aura': '👁️ Aura',
+                'aura-migraene': '🌀 Aura + Migräne'
+            };
+            return labels[type] || type;
+        }
+
+        function getMedicationLabel(medication) {
+            const labels = {
+                'keine': '❌ Keine',
+                'schmerzmittel': '💊 Schmerzmittel',
+                'triptan': '💉 Triptan'
+            };
+            return labels[medication] || medication;
+        }
+
+        // Initialize app
+        window.addEventListener('load', async function() {
+            try {
+                await initDB();
+                await loadEntries();
+                updateSaveButton();
+                
+                // Check for localStorage backup and migrate
+                const backup = localStorage.getItem('migraineEntries');
+                if (backup && entries.length === 0) {
+                    try {
+                        const oldEntries = JSON.parse(backup);
+                        for (const entry of oldEntries) {
+                            await saveEntry(entry);
+                        }
+                        await loadEntries();
+                        updateSyncStatus('📦 Migration von localStorage');
+                        localStorage.removeItem('migraineEntries'); // Clean up
+                    } catch (e) {
+                        console.warn('Migration failed:', e);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateSyncStatus('❌ Init-Fehler');
+            }
         });
+
+        // Service Worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4gc2VsZi5za2lwV2FpdGluZygpKTtzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgZXZlbnQgPT4ge2V2ZW50LnJlc3BvbmRXaXRoKGZldGNoKGV2ZW50LnJlcXVlc3QpLmNhdGNoKCkgPT4gbmV3IFJlc3BvbnNlKCdPZmZsaW5lJykpKTt9KTs=')
+                .catch(err => console.log('Service Worker registration failed'));
+        }
 
         // Prevent zoom on double tap
         let lastTouchEnd = 0;
