@@ -246,6 +246,7 @@
 
             <div class="test-buttons">
                 <button class="test-btn" onclick="testLocalStorage()">🧪 localStorage Test</button>
+                <button class="test-btn" onclick="loadEntries(); addDebugLog('🔄 Manual reload triggered', 'info')">🔄 Neu laden</button>
                 <button class="test-btn" onclick="showEntries()">📋 Einträge anzeigen</button>
                 <button class="test-btn" onclick="clearData()">🗑️ Daten löschen</button>
             </div>
@@ -313,17 +314,24 @@
 
         function loadEntries() {
             try {
-                addDebugLog('🔄 Lade Einträge aus localStorage...', 'info');
+                addDebugLog('🔄 loadEntries() aufgerufen', 'info');
                 const stored = localStorage.getItem('migraineEntries');
+                addDebugLog(`📁 localStorage.getItem result: ${stored === null ? 'null' : stored === undefined ? 'undefined' : stored.length + ' Zeichen'}`, 'info');
+                
                 if (stored) {
+                    addDebugLog(`📄 Raw localStorage data: ${stored}`, 'info');
                     entries = JSON.parse(stored);
                     addDebugLog(`✅ ${entries.length} Einträge geladen`, 'success');
+                    addDebugLog(`📊 Loaded entries: ${JSON.stringify(entries)}`, 'info');
                 } else {
                     entries = [];
                     addDebugLog('📝 Keine Einträge vorhanden, leeres Array erstellt', 'info');
                 }
+                
+                addDebugLog(`🎯 Final entries array length: ${entries.length}`, 'info');
             } catch (error) {
                 addDebugLog(`❌ Fehler beim Laden: ${error.message}`, 'error');
+                addDebugLog(`❌ Error stack: ${error.stack}`, 'error');
                 entries = [];
             }
         }
@@ -353,21 +361,50 @@
         }
 
         function showEntries() {
+            addDebugLog('🔍 showEntries() aufgerufen', 'info');
+            
+            // Frische Daten aus localStorage laden
+            const freshStored = localStorage.getItem('migraineEntries');
+            addDebugLog(`📁 Fresh localStorage read: ${freshStored ? freshStored.length + ' Zeichen' : 'null'}`, 'info');
+            
+            if (freshStored) {
+                try {
+                    const freshEntries = JSON.parse(freshStored);
+                    addDebugLog(`📊 Fresh parse: ${freshEntries.length} Einträge`, 'success');
+                    addDebugLog(`📋 Fresh data: ${JSON.stringify(freshEntries)}`, 'info');
+                    
+                    // Aktualisiere globales entries Array
+                    entries = freshEntries;
+                } catch (e) {
+                    addDebugLog(`❌ JSON Parse Error: ${e.message}`, 'error');
+                }
+            }
+            
+            addDebugLog(`🎯 Entries Array length: ${entries.length}`, 'info');
+            addDebugLog(`🎯 Entries Array content: ${JSON.stringify(entries)}`, 'info');
+            
             const display = document.getElementById('entriesDisplay');
             const list = document.getElementById('entriesList');
             
             if (entries.length === 0) {
+                addDebugLog('📝 Keine Einträge - zeige Leer-Message', 'info');
                 list.innerHTML = '<div class="entry-item">Keine Einträge vorhanden</div>';
             } else {
-                list.innerHTML = entries.map((entry, index) => `
-                    <div class="entry-item">
-                        <strong>#${index + 1}</strong> - ${new Date(entry.timestamp).toLocaleString()}<br>
-                        Art: ${entry.type} | Medikation: ${entry.medication}
-                    </div>
-                `).join('');
+                addDebugLog(`📋 Zeige ${entries.length} Einträge an`, 'success');
+                list.innerHTML = entries.map((entry, index) => {
+                    addDebugLog(`📄 Entry ${index}: ${JSON.stringify(entry)}`, 'info');
+                    return `
+                        <div class="entry-item">
+                            <strong>#${index + 1}</strong> - ${new Date(entry.timestamp).toLocaleString()}<br>
+                            Art: ${entry.type} | Medikation: ${entry.medication}<br>
+                            <small>ID: ${entry.id}</small>
+                        </div>
+                    `;
+                }).join('');
             }
             
             display.style.display = display.style.display === 'none' ? 'block' : 'none';
+            addDebugLog(`👁️ Display visibility: ${display.style.display}`, 'info');
         }
 
         function clearData() {
