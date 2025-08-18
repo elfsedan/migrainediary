@@ -1,4 +1,4 @@
-    <!-- PWA Icons --><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -248,7 +248,6 @@
             transform: translateY(-2px);
         }
 
-        /* Slider Styles */
         .slider-container {
             position: relative;
             margin: 15px 0;
@@ -285,7 +284,6 @@
             color: #ff6b6b;
         }
 
-        /* Toggle Button Styles */
         .toggle-group {
             display: flex;
             flex-direction: column;
@@ -332,7 +330,6 @@
             color: white;
         }
 
-        /* Checkbox Styles */
         .checkbox-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -385,7 +382,6 @@
             color: white;
         }
 
-        /* Medication details */
         .medication-details {
             margin-top: 20px;
             padding: 20px;
@@ -1216,6 +1212,7 @@
         let db = null;
         let entries = [];
         let currentFilter = 'all';
+        let editingEntryId = null;
 
         function initDB() {
             return new Promise((resolve, reject) => {
@@ -1277,11 +1274,21 @@
         }
 
         function resetDetailedForm() {
+            editingEntryId = null;
             document.getElementById('detailedForm').reset();
             document.querySelectorAll('#detailedScreen .option-btn').forEach(btn => btn.classList.remove('selected'));
             document.querySelectorAll('#detailedScreen .toggle-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.value === 'no') btn.classList.add('active');
+            });
+            
+            // Reset checkboxes
+            document.querySelectorAll('#detailedScreen .checkbox-item').forEach(item => {
+                item.style.background = '#f8f9fa';
+                item.style.borderColor = '#e9ecef';
+                item.style.color = 'inherit';
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = false;
             });
             
             document.querySelectorAll('#detailedScreen input[type="hidden"]').forEach(input => {
@@ -1411,8 +1418,8 @@
             if (isValid) {
                 saveBtn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
                 saveBtn.style.boxShadow = '0 8px 20px rgba(76, 205, 196, 0.4)';
-                if (saveBtn.textContent.includes('Änderungen')) {
-                    // Keep edit text
+                if (editingEntryId) {
+                    saveBtn.textContent = '✏️ Änderungen speichern';
                 } else {
                     saveBtn.textContent = '💾 Vollständig speichern';
                 }
@@ -1423,11 +1430,7 @@
             } else {
                 saveBtn.style.background = '#ccc';
                 saveBtn.style.boxShadow = 'none';
-                if (saveBtn.textContent.includes('Änderungen')) {
-                    saveBtn.textContent = '⚠️ Bitte Grunddaten ausfüllen';
-                } else {
-                    saveBtn.textContent = '⚠️ Bitte Grunddaten ausfüllen';
-                }
+                saveBtn.textContent = '⚠️ Bitte Grunddaten ausfüllen';
                 
                 quickSaveBtn.style.background = '#f8f9fa';
                 quickSaveBtn.style.color = '#ccc';
@@ -1480,8 +1483,8 @@
             vibrate([20, 50, 20]);
             
             const entry = {
-                id: Date.now(),
-                timestamp: new Date().toISOString(),
+                id: editingEntryId || Date.now(),
+                timestamp: editingEntryId ? entries.find(e => e.id === editingEntryId).timestamp : new Date().toISOString(),
                 type: formData.get('type'),
                 medication: formData.get('medication'),
                 source: 'quickSave',
@@ -1489,6 +1492,129 @@
             };
 
             saveEntryAndShowSuccess(entry, 'quick');
+        }
+
+        async function editEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            editingEntryId = id;
+            showDetailedForm();
+            
+            setTimeout(() => {
+                populateDetailedForm(entry);
+            }, 100);
+        }
+
+        function populateDetailedForm(entry) {
+            // Type
+            if (entry.type) {
+                const typeBtn = document.querySelector(`[data-value="${entry.type}"]`);
+                if (typeBtn && typeBtn.closest('.form-group').querySelector('label').textContent.includes('Art der Beschwerden')) {
+                    typeBtn.click();
+                }
+            }
+            
+            // Trigger
+            if (entry.trigger) {
+                const triggerBtn = document.querySelector(`[data-value="${entry.trigger}"]`);
+                if (triggerBtn && triggerBtn.closest('.form-group').querySelector('label').textContent.includes('Auslöser')) {
+                    triggerBtn.click();
+                }
+            }
+            
+            // Pain level
+            if (entry.painLevel !== undefined) {
+                document.getElementById('painLevel').value = entry.painLevel;
+                document.getElementById('painLevelValue').textContent = entry.painLevel;
+            }
+            
+            // Duration
+            if (entry.duration !== undefined) {
+                document.getElementById('duration').value = entry.duration;
+                document.getElementById('durationValue').textContent = entry.duration;
+            }
+            
+            // Pain type toggles
+            ['pulsating', 'pressing'].forEach(type => {
+                if (entry[type] !== undefined) {
+                    const btn = document.querySelector(`[data-name="${type}"][data-value="${entry[type] ? 'yes' : 'no'}"]`);
+                    if (btn) btn.click();
+                }
+            });
+            
+            // Location
+            if (entry.location) {
+                const locationBtn = document.querySelector(`[data-value="${entry.location}"]`);
+                if (locationBtn && locationBtn.closest('.form-group').querySelector('label').textContent.includes('Lokalisation')) {
+                    locationBtn.click();
+                }
+            }
+            
+            // Aura checkboxes
+            if (entry.aura && Array.isArray(entry.aura)) {
+                entry.aura.forEach(auraType => {
+                    const checkbox = document.querySelector(`input[name="aura"][value="${auraType}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        const item = checkbox.closest('.checkbox-item');
+                        item.style.background = '#4ecdc4';
+                        item.style.borderColor = '#4ecdc4';
+                        item.style.color = 'white';
+                    }
+                });
+            }
+            
+            // Symptom toggles
+            ['vomiting', 'nausea', 'phonophobia', 'photophobia', 'osmophobia'].forEach(symptom => {
+                if (entry[symptom] !== undefined) {
+                    const btn = document.querySelector(`[data-name="${symptom}"][data-value="${entry[symptom] ? 'yes' : 'no'}"]`);
+                    if (btn) btn.click();
+                }
+            });
+            
+            // Other symptoms checkboxes
+            if (entry.otherSymptoms && Array.isArray(entry.otherSymptoms)) {
+                entry.otherSymptoms.forEach(symptom => {
+                    const checkbox = document.querySelector(`input[name="otherSymptoms"][value="${symptom}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        const item = checkbox.closest('.checkbox-item');
+                        item.style.background = '#4ecdc4';
+                        item.style.borderColor = '#4ecdc4';
+                        item.style.color = 'white';
+                    }
+                });
+            }
+            
+            // Medication
+            if (entry.medication) {
+                let medValue = entry.medication;
+                if (medValue === 'schmerzmittel') medValue = 'neuralgin';
+                if (medValue === 'triptan') medValue = 'sumatriptan';
+                
+                const medBtn = document.querySelector(`[data-value="${medValue}"]`);
+                if (medBtn && medBtn.closest('.form-group').querySelector('label').textContent.includes('Medikation')) {
+                    medBtn.click();
+                    
+                    if (medValue !== 'keine') {
+                        if (entry.medCount !== undefined) {
+                            document.getElementById('medCount').value = entry.medCount;
+                            document.getElementById('medCountValue').textContent = entry.medCount;
+                        }
+                        
+                        if (entry.medHelped) {
+                            const helpedBtn = document.querySelector(`[data-value="${entry.medHelped}"]`);
+                            if (helpedBtn && helpedBtn.closest('.form-group').querySelector('label').textContent.includes('geholfen')) {
+                                helpedBtn.click();
+                            }
+                        }
+                    }
+                }
+            }
+            
+            document.getElementById('quickSaveBtn').style.display = 'none';
+            updateDetailedSaveButton();
         }
 
         document.addEventListener('click', function(e) {
@@ -1555,8 +1681,8 @@
             const formData = new FormData(e.target);
             
             const entry = {
-                id: Date.now(),
-                timestamp: new Date().toISOString(),
+                id: editingEntryId || Date.now(),
+                timestamp: editingEntryId ? entries.find(e => e.id === editingEntryId).timestamp : new Date().toISOString(),
                 type: formData.get('type'),
                 medication: formData.get('medication'),
                 trigger: formData.get('trigger') || null,
@@ -1574,11 +1700,12 @@
                 medHelped: formData.get('medHelped') || null,
                 aura: formData.getAll('aura'),
                 otherSymptoms: formData.getAll('otherSymptoms'),
-                source: 'detailed',
+                source: editingEntryId ? 'edited' : 'detailed',
+                lastModified: editingEntryId ? new Date().toISOString() : undefined,
                 version: 3
             };
 
-            saveEntryAndShowSuccess(entry, 'detailed');
+            saveEntryAndShowSuccess(entry, editingEntryId ? 'edit' : 'detailed');
         });
 
         document.getElementById('backdateForm').addEventListener('submit', async function(e) {
@@ -1616,6 +1743,9 @@
                     case 'detailed':
                         successMessage = `<strong>📋 Vollständig gespeichert!</strong>`;
                         break;
+                    case 'edit':
+                        successMessage = `<strong>✏️ Erfolgreich geändert!</strong>`;
+                        break;
                     case 'backdate':
                         successMessage = `<strong>📅 Nachtrag erfolgreich!</strong>`;
                         break;
@@ -1633,6 +1763,8 @@
                     document.getElementById('successOverlay').style.display = 'none';
                     if (type === 'backdate') {
                         showDetailedForm();
+                    } else if (type === 'edit') {
+                        showEntries();
                     } else {
                         resetDetailedForm();
                     }
@@ -1771,33 +1903,6 @@
                     alert('Löschen fehlgeschlagen.');
                 }
             }
-        }
-
-        async function editEntry(id) {
-            const entry = entries.find(e => e.id === id);
-            if (!entry) return;
-
-            // For now, simple edit - later we can expand this
-            showDetailedForm();
-            
-            setTimeout(() => {
-                // Basic population - can be expanded
-                if (entry.type) {
-                    const typeBtn = document.querySelector(`#detailedScreen [data-value="${entry.type}"]`);
-                    if (typeBtn) typeBtn.click();
-                }
-                
-                if (entry.medication) {
-                    let medValue = entry.medication;
-                    if (medValue === 'schmerzmittel') medValue = 'neuralgin';
-                    if (medValue === 'triptan') medValue = 'sumatriptan';
-                    
-                    const medBtn = document.querySelector(`#detailedScreen [data-value="${medValue}"]`);
-                    if (medBtn && medBtn.closest('.form-group').querySelector('label').textContent.includes('Medikation')) {
-                        medBtn.click();
-                    }
-                }
-            }, 100);
         }
 
         function exportData() {
